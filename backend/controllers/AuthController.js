@@ -55,8 +55,9 @@ class AuthController {
             const isPasswordValid = await bcrypt.compareSync(password, user.password)
             if (!isPasswordValid) { throw { code: 400, message: 'INVALID_PASSWORD' } }
 
-            const accessToken = await generateAccesToken({ id: user._id })
-            const refreshToken = await generateRefreshToken({ id: user._id })
+            let payload = { id: user._id }
+            const accessToken = await generateAccesToken(payload)
+            const refreshToken = await generateRefreshToken(payload)
 
             return res.status(200).json({
                 status: true,
@@ -66,6 +67,34 @@ class AuthController {
                 refreshToken: refreshToken,
             })
         } catch (error) {
+            return res.status(error.code || 500).json({
+                message: error.message
+            })
+        }
+    }
+
+    async refresh_Token(req, res) {
+        try {
+            if (!req.body.refreshToken) { throw { code: 400, message: 'REFRESH_TOKEN_REQUIRED' } }
+
+            const verifyResfrehToken = jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_TOKEN)
+            let payload = { id: verifyResfrehToken.id }
+            const accessToken = await generateAccesToken(payload)
+            const refreshToken = await generateRefreshToken(payload)
+
+            return res.status(200).json({
+                status: true,
+                message: 'REFRESH_TOKEN_SUCCESS',
+                accessToken,
+                refreshToken,
+            })
+        } catch (error) {
+            const errorJWT = ['invalid signature', 'jwt malformed', 'jwt must be provided', 'invalid token']
+            if (error.message == 'jwt_expired') {
+                error.message = 'REFRESH_TOKEN_EXPIRED'
+            } else if (errorJWT.includes(error.message)) {
+                error.message = 'INVALID_REFRESH_TOKEN'
+            }
             return res.status(error.code || 500).json({
                 message: error.message
             })
