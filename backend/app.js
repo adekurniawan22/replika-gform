@@ -1,8 +1,6 @@
-// require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const app = express();
-
-require('dotenv').config()
 
 const api = require('./routers/api');
 const connection = require('./connection');
@@ -11,7 +9,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/api', api);
 app.use((req, res) => {
-    res.status(404).json({ message: '404 NOT FOUND' })
+    res.status(404).json({ status:false, message: '404_NOT_FOUND' })
 })
 
 connection();
