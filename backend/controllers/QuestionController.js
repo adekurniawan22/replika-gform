@@ -54,13 +54,13 @@ class QuestionController{
             let field = {};
     
             if (req.body.hasOwnProperty('question')) {
-                field['questions.$[indexQuestionId].question'] = req.body.question;
+                field['questions.$[indexQuestion.id].question'] = req.body.question;
             }
             if (req.body.hasOwnProperty('required')) {
-                field['questions.$[indexQuestionId].required'] = req.body.required;
+                field['questions.$[indexQuestion.id].required'] = req.body.required;
             }
             if (req.body.hasOwnProperty('type')) {
-                field['questions.$[indexQuestionId].type'] = req.body.type;
+                field['questions.$[indexQuestion.id].type'] = req.body.type;
             }
 
             console.log(field);     
