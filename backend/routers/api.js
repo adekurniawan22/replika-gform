@@ -5,6 +5,7 @@ const AuthController = require('../controllers/AuthController');
 const FormController = require('../controllers/FormController');
 const QuestionController = require('../controllers/QuestionController');
 const OptionController = require('../controllers/OptionController');
+const AnswerController = require('../controllers/AnswerController');
 const jwtAuth = require('../middlewares/jwtAuth');
 
 // AuthController
@@ -16,6 +17,7 @@ router.post('/refresh-token', jwtAuth, AuthController.refresh_Token)
 router.get('/forms', jwtAuth, FormController.index)
 router.post('/forms', jwtAuth, FormController.store)
 router.get('/forms/:id', jwtAuth, FormController.show)
+router.get('/forms/:id/users', jwtAuth, FormController.showToUser)
 router.put('/forms/:id', jwtAuth, FormController.update)
 router.delete('/forms/:id', jwtAuth, FormController.destroy)
 
@@ -26,9 +28,11 @@ router.put('/forms/:id/questions/:questionId', jwtAuth, QuestionController.updat
 router.delete('/forms/:id/questions/:questionId', jwtAuth, QuestionController.destroy)
 
 // OptionController
-// router.get('/forms/:id/questions', jwtAuth, OptionController.index)
 router.post('/forms/:id/questions/:questionId/options', jwtAuth, OptionController.store)
 router.put('/forms/:id/questions/:questionId/options/:optionId', jwtAuth, OptionController.update)
-// router.delete('/forms/:id/questions/:questionId', jwtAuth, OptionController.destroy)
+router.delete('/forms/:id/questions/:questionId/options/:optionId', jwtAuth, OptionController.destroy)
+
+// AnswerController
+router.get('/answers/:formId', jwtAuth, AnswerController.store)
 
 module.exports = router;

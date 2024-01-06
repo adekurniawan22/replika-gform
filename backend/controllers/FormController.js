@@ -1,4 +1,5 @@
 const Form = require('../models/Form');
+const User = require('../models/User');
 const mongoose = require('mongoose');
 
 class FormController{
@@ -17,7 +18,7 @@ class FormController{
                 form
             })
         } catch (error) {
-            console.log(error);
+            
             return res.status(400).json({
                 status: false,
                 message: error.message
@@ -43,7 +44,7 @@ class FormController{
                 form
             })
         } catch (error) {
-            console.log(error);
+            
             return res.status(400).json({
                 status: false,
                 message: error.message
@@ -65,7 +66,7 @@ class FormController{
                 form
             })
         } catch (error) {
-            console.log(error);
+            
             return res.status(400).json({
                 status: false,
                 message: error.message
@@ -108,6 +109,36 @@ class FormController{
                 form
             })
         }catch(error){
+            return res.status(400).json({
+                status: false,
+                message: error.message
+            })
+        }
+    }
+
+    async showToUser(req,res)
+    {
+        try {
+            if(!req.params.id){throw{code:400, message:'REQUIRED_FORM_ID'}}
+            if(!mongoose.Types.ObjectId.isValid(req.params.id)){throw{code:400, message:'INVALID_ID'}}
+
+            const form = await Form.findOne({_id: req.params.id})
+            if(!form){throw{code:400, message:'FORM_NOT_FOUND'}}
+
+            if(req.jwt.id != form.userId && form.public === false){
+                const user = await User.findOne({_id: req.jwt.id});
+                if(!form.invites.includes(user.email)){throw{code:400, message:'YOU_ARE_NOT_INVITED'}}
+            }
+
+            form.invites = []
+
+            return res.status(200).json({
+                status: true,
+                message: 'SUCCESS_GET_FORM',
+                form
+            })
+        } catch (error) {
+            
             return res.status(400).json({
                 status: false,
                 message: error.message
