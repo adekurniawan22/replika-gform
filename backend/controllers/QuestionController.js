@@ -1,7 +1,7 @@
 const Form = require('../models/Form');
 const mongoose = require('mongoose');
 
-const allowedTypes = ['Text', 'Checkbox', 'Radio', 'Dropdown', 'Email'];
+const allowedTypes = ['Text', 'Checkbox', 'Radio', 'Dropdown', 'Email', 'Textarea'];
 class QuestionController{
     async index(req,res)
     {
@@ -35,7 +35,7 @@ class QuestionController{
                 question: null,
                 type: 'text',
                 required: false,
-                option: [],
+                options: [],
             }
 
             const form = await Form.findOneAndUpdate({_id: req.params.id, userId: req.jwt.id}, 
