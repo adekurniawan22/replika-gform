@@ -1,134 +1,202 @@
-const Form = require('../models/Form');
-const mongoose = require('mongoose');
+const Form = require("../models/Form");
+const mongoose = require("mongoose");
 
-class OptionController{
-    async store(req,res){
+class OptionController {
+    async store(req, res) {
         try {
-            if (!req.params.id) {throw { code: 400, message: 'REQUIRED_FORM_ID' };}
-            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {throw { code: 400, message: 'INVALID_FORM_ID' };}
-            if (!req.params.questionId) {throw { code: 400, message: 'REQUIRED_QUESTION_ID' };}
-            if (!mongoose.Types.ObjectId.isValid(req.params.questionId)) {throw { code: 400, message: 'INVALID_QUESTION_ID' };}
-            if(!req.body.option){throw { code: 400, message: 'REQUIRED_OPTION' };}
+            if (!req.params.id) {
+                throw { code: 400, message: "REQUIRED_FORM_ID" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                throw { code: 400, message: "INVALID_FORM_ID" };
+            }
+            if (!req.params.questionId) {
+                throw { code: 400, message: "REQUIRED_QUESTION_ID" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.questionId)) {
+                throw { code: 400, message: "INVALID_QUESTION_ID" };
+            }
+            if (!req.body.option) {
+                throw { code: 400, message: "REQUIRED_OPTION" };
+            }
 
             const option = {
                 id: new mongoose.Types.ObjectId(),
-                value: req.body.option
-            }
+                value: req.body.option,
+            };
 
-            const form = await Form.findOneAndUpdate({_id: req.params.id, userId: req.jwt.id},
-                                                    {$push: {"questions.$[indexQuestion].options": option}},
-                                                    {
-                                                        arrayFilters: [{ 'indexQuestion.id': new mongoose.Types.ObjectId(req.params.questionId) }],
-                                                        new: true
-                                                    });
-            if(!form){throw{code:400, message:'ADD_OPTION_FAILED'}}
+            const form = await Form.findOneAndUpdate(
+                { _id: req.params.id, userId: req.jwt.id },
+                { $push: { "questions.$[indexQuestion].options": option } },
+                {
+                    arrayFilters: [
+                        {
+                            "indexQuestion.id": new mongoose.Types.ObjectId(
+                                req.params.questionId
+                            ),
+                        },
+                    ],
+                    new: true,
+                }
+            );
+            if (!form) {
+                throw { code: 400, message: "ADD_OPTION_FAILED" };
+            }
 
             return res.status(201).json({
                 status: true,
-                message: 'ADD_OPTION_SUCCESS',
-                option
-            })
-
-        }catch(error){
+                message: "ADD_OPTION_SUCCESS",
+                option,
+            });
+        } catch (error) {
             return res.status(400).json({
                 status: false,
-                message: error.message
-            })
+                message: error.message,
+            });
         }
     }
 
-    async update(req, res){
+    async update(req, res) {
         try {
-            if (!req.params.id) {throw { code: 400, message: 'REQUIRED_FORM_ID' };}
-            if (!req.params.questionId) {throw { code: 400, message: 'REQUIRED_QUESTION_ID' };}
-            if (!req.params.optionId) {throw { code: 400, message: 'REQUIRED_OPTION_ID' };}
-            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {throw { code: 400, message: 'INVALID_FORM_ID' };}
-            if (!mongoose.Types.ObjectId.isValid(req.params.questionId)) {throw { code: 400, message: 'INVALID_QUESTION_ID' };}
-            if (!mongoose.Types.ObjectId.isValid(req.params.optionId)) {throw { code: 400, message: 'INVALID_OPTION_ID' };}
-
-            if(!req.body.option){throw{ code: 400, message: 'REQUIRED_OPTION_'}}
-
-            const question = await Form.findOne({ _id: req.params.id, userId: req.jwt.id });
-            if (!question) {
-                throw { code: 400, message: 'UPDATE_OPTION_FAILED' };
+            if (!req.params.id) {
+                throw { code: 400, message: "REQUIRED_FORM_ID" };
+            }
+            if (!req.params.questionId) {
+                throw { code: 400, message: "REQUIRED_QUESTION_ID" };
+            }
+            if (!req.params.optionId) {
+                throw { code: 400, message: "REQUIRED_OPTION_ID" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                throw { code: 400, message: "INVALID_FORM_ID" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.questionId)) {
+                throw { code: 400, message: "INVALID_QUESTION_ID" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.optionId)) {
+                throw { code: 400, message: "INVALID_OPTION_ID" };
             }
 
-            const indexQuestion = question.questions.findIndex(q => q.id.toString() === req.params.questionId);
+            if (!req.body.option) {
+                throw { code: 400, message: "REQUIRED_OPTION_" };
+            }
+
+            const question = await Form.findOne({
+                _id: req.params.id,
+                userId: req.jwt.id,
+            });
+            if (!question) {
+                throw { code: 400, message: "UPDATE_OPTION_FAILED" };
+            }
+
+            const indexQuestion = question.questions.findIndex(
+                (q) => q.id.toString() === req.params.questionId
+            );
 
             if (indexQuestion === -1) {
-                throw { code: 400, message: 'QUESTION_ID_ERROR' };
+                throw { code: 400, message: "QUESTION_ID_ERROR" };
             }
 
-            const indexOption = question.questions[indexQuestion].options.findIndex(o => o.id.toString() === req.params.optionId);
+            const indexOption = question.questions[
+                indexQuestion
+            ].options.findIndex((o) => o.id.toString() === req.params.optionId);
 
             if (indexOption === -1) {
-                throw { code: 400, message: 'OPTION_ID_ERROR' };
+                throw { code: 400, message: "OPTION_ID_ERROR" };
             }
 
             const updatedQuestion = await Form.findOneAndUpdate(
                 { _id: req.params.id, userId: req.jwt.id },
-                { $set: { [`questions.${indexQuestion}.options.${indexOption}.value`]: req.body.option } },
+                {
+                    $set: {
+                        [`questions.${indexQuestion}.options.${indexOption}.value`]:
+                            req.body.option,
+                    },
+                },
                 { new: true }
             );
 
             if (!updatedQuestion) {
-                throw { code: 500, message: 'UPDATE_OPTIONS_FAILED' };
+                throw { code: 500, message: "UPDATE_OPTIONS_FAILED" };
             }
 
             return res.status(200).json({
                 status: true,
-                message: 'UPDATE_OPTION_SUCCESS',
-                option: updatedQuestion.questions[indexQuestion].options[indexOption]
+                message: "UPDATE_OPTION_SUCCESS",
+                option: updatedQuestion.questions[indexQuestion].options[
+                    indexOption
+                ],
             });
-  
         } catch (error) {
-            console.log(error)
+            console.log(error);
             return res.status(400).json({
                 status: false,
-                message: error.message
-            })
+                message: error.message,
+            });
         }
     }
 
     async destroy(req, res) {
         try {
             //check form id
-            if(!req.params.id) { throw { code: 428, message: "FORM_ID_REQUIRED" } }
-            if(!req.params.questionId) { throw { code: 428, message: "QUESTION_ID_REQUIRED" } }
-            if(!req.params.optionId) { throw { code: 428, message: "OPTION_ID_REQUIRED" } }
-            if(!mongoose.Types.ObjectId.isValid(req.params.id)) { throw { code: 400, message: "INVALID_ID" } }
-            if(!mongoose.Types.ObjectId.isValid(req.params.questionId)) { throw { code: 428, message: "INVALID_QUESTION_ID" } }
-            if(!mongoose.Types.ObjectId.isValid(req.params.optionId)) { throw { code: 400, message: "OPTION_ID_REQUIRED" } }
+            if (!req.params.id) {
+                throw { code: 428, message: "FORM_ID_REQUIRED" };
+            }
+            if (!req.params.questionId) {
+                throw { code: 428, message: "QUESTION_ID_REQUIRED" };
+            }
+            if (!req.params.optionId) {
+                throw { code: 428, message: "OPTION_ID_REQUIRED" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                throw { code: 400, message: "INVALID_ID" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.questionId)) {
+                throw { code: 428, message: "INVALID_QUESTION_ID" };
+            }
+            if (!mongoose.Types.ObjectId.isValid(req.params.optionId)) {
+                throw { code: 400, message: "OPTION_ID_REQUIRED" };
+            }
 
+            const question = await Form.findOneAndUpdate(
+                { _id: req.params.id, userId: req.jwt.id },
+                {
+                    $pull: {
+                        "questions.$[indexQuestion].options": {
+                            id: new mongoose.Types.ObjectId(
+                                req.params.optionId
+                            ),
+                        },
+                    },
+                },
+                {
+                    arrayFilters: [
+                        {
+                            "indexQuestion.id": new mongoose.Types.ObjectId(
+                                req.params.questionId
+                            ),
+                        },
+                    ],
+                    new: true,
+                }
+            );
 
-            const question = await Form.findOneAndUpdate({ _id: req.params.id, userId: req.jwt.id,  }, 
-                                                        { 
-                                                            $pull: { 
-                                                                'questions.$[indexQuestion].options': { id: new mongoose.Types.ObjectId(req.params.optionId) } 
-                                                            } 
-                                                        },
-                                                        {
-                                                            arrayFilters: [{ 
-                                                                "indexQuestion.id": new mongoose.Types.ObjectId(req.params.questionId)
-                                                            }],
-                                                            new: true 
-                                                        });
-
-            if(!question) { throw { code: 500, message: "DELETE_OPTIONS_FAILED" } }
+            if (!question) {
+                throw { code: 500, message: "DELETE_OPTIONS_FAILED" };
+            }
 
             res.status(200).json({
-                    status: true,
-                    message: 'DELETE_OPTIONS_SUCCESS',
-                    question
-                })
+                status: true,
+                message: "DELETE_OPTIONS_SUCCESS",
+                question,
+            });
         } catch (err) {
-            res.status(err.code || 500)
-                .json({
-                    status: false,
-                    message: err.message,
-                })
+            res.status(err.code || 500).json({
+                status: false,
+                message: err.message,
+            });
         }
     }
 }
 
-module.exports = new OptionController(); 
+module.exports = new OptionController();
