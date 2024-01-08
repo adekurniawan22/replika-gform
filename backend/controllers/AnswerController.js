@@ -4,6 +4,7 @@ const Answer = require("../models/Answer");
 const answerDuplicate = require("../libraries/answerDuplicate");
 const questionRequiredButEmpty = require("../libraries/questionRequiredButEmpty");
 const optionValueNotExist = require("../libraries/optionValueNotExist");
+const questionIdNotValid = require("../libraries/questionIdNotValid");
 
 class AnswerController {
     async store(req, res) {
@@ -25,20 +26,19 @@ class AnswerController {
                 throw { code: 404, message: "DUPLICATE_ANSWER" };
             }
 
-            const isQuestionRequiredButEmpty = await questionRequiredButEmpty(
-                form,
-                req.body.answers
-            );
+            const isQuestionRequiredButEmpty = await questionRequiredButEmpty(form, req.body.answers);
             if (isQuestionRequiredButEmpty) {
                 throw { code: 404, message: "QUESTION_REQUIRED_BUT_EMPTY" };
             }
 
-            const isOptionValueNotExist = await optionValueNotExist(
-                form,
-                req.body.answers
-            );
-            if (isOptionValueNotExist) {
-                throw { code: 404, message: "INVALID_VALUE_QUESTION" };
+            const isOptionValueNotExist = await optionValueNotExist(form, req.body.answers);
+            if (isOptionValueNotExist.length > 0) {
+                throw { code: 404, message: "INVALID_VALUE_QUESTION", question: isOptionValueNotExist };
+            }
+
+            const isQuestionIdNotValid = await questionIdNotValid(form, req.body.answers);
+            if (isQuestionIdNotValid.length > 0) {
+                throw { code: 404, message: "INVALID_QUESTION_ID", question: { questionId: isQuestionIdNotValid } };
             }
 
             let fields = {};
@@ -61,10 +61,15 @@ class AnswerController {
                 answer,
             });
         } catch (error) {
-            return res.status(400).json({
+            const response = {
                 status: false,
                 message: error.message,
-            });
+            };
+
+            if (error.question) {
+                response.question = error.question;
+            }
+            return res.status(400).json({ response });
         }
     }
 }
