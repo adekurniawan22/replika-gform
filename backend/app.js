@@ -9,8 +9,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", api);
 // app.use((req, res) => {
-//     res.status(404).json({ status:false, message: '404_NOT_FOUND' })
-// })
+//     res.status(404).json({ status: false, message: "404_NOT_FOUND" });
+// });
 
 connection();
 

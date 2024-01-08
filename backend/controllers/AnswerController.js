@@ -5,14 +5,12 @@ const answerDuplicate = require("../libraries/answerDuplicate");
 const questionRequiredButEmpty = require("../libraries/questionRequiredButEmpty");
 const optionValueNotExist = require("../libraries/optionValueNotExist");
 const questionIdNotValid = require("../libraries/questionIdNotValid");
+const emailNotValid = require("../libraries/emailNotValid");
 
 class AnswerController {
     async store(req, res) {
         try {
-            if (!req.params.formId) {
-                throw { code: 428, message: "REQUIRED_FORM_ID" };
-            }
-            if (!req.params.formId) {
+            if (req.params.formId) {
                 throw { code: 428, message: "REQUIRED_FORM_ID" };
             }
             if (!mongoose.Types.ObjectId.isValid(req.params.formId)) {
@@ -39,6 +37,11 @@ class AnswerController {
             const isQuestionIdNotValid = await questionIdNotValid(form, req.body.answers);
             if (isQuestionIdNotValid.length > 0) {
                 throw { code: 404, message: "INVALID_QUESTION_ID", question: { questionId: isQuestionIdNotValid } };
+            }
+
+            const isEmailNotValid = await emailNotValid(form, req.body.answers);
+            if (isEmailNotValid.length > 0) {
+                throw { code: 404, message: "INVALID_QUESTION_EMAIL", question: isEmailNotValid };
             }
 
             let fields = {};

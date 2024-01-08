@@ -6,6 +6,7 @@ const FormController = require("../controllers/FormController");
 const QuestionController = require("../controllers/QuestionController");
 const OptionController = require("../controllers/OptionController");
 const AnswerController = require("../controllers/AnswerController");
+const InviteController = require("../controllers/InviteController");
 const jwtAuth = require("../middlewares/jwtAuth");
 
 // AuthController
@@ -33,6 +34,11 @@ router.put("/forms/:id/questions/:questionId/options/:optionId", jwtAuth, Option
 router.delete("/forms/:id/questions/:questionId/options/:optionId", jwtAuth, OptionController.destroy);
 
 // AnswerController
-router.get("/answers/:formId", jwtAuth, AnswerController.store);
+router.post("/answers/:formId", jwtAuth, AnswerController.store);
+
+// InviteController
+router.get("/forms/:id/invites", jwtAuth, InviteController.index);
+router.post("/forms/:id/invites", jwtAuth, InviteController.store);
+router.delete("/forms/:id/invites", jwtAuth, InviteController.destroy);
 
 module.exports = router;
