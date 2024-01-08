@@ -1,3 +1,4 @@
+// Answer.js
 const mongoose = require("mongoose");
 
 const Schema = new mongoose.Schema(
@@ -11,16 +12,14 @@ const Schema = new mongoose.Schema(
             required: true,
         },
         createdAt: {
-            type: Number,
+            type: Date, // Change the type to Date
         },
         updatedAt: {
-            type: Number,
+            type: Date, // Change the type to Date
         },
     },
     {
-        timestamps: {
-            currentTime: () => Math.floor(Date.now() / 1000),
-        },
+        timestamps: true, // Use the built-in timestamps
         strict: false,
     }
 );
