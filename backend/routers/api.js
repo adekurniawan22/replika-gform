@@ -7,12 +7,13 @@ const QuestionController = require("../controllers/QuestionController");
 const OptionController = require("../controllers/OptionController");
 const AnswerController = require("../controllers/AnswerController");
 const InviteController = require("../controllers/InviteController");
+const ResponseController = require("../controllers/ResponseController");
 const jwtAuth = require("../middlewares/jwtAuth");
 
 // AuthController
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
-router.post("/refresh-token", jwtAuth, AuthController.refresh_Token);
+router.post("/refresh-token", AuthController.refresh_Token);
 
 // FormController
 router.get("/forms", jwtAuth, FormController.index);
@@ -40,5 +41,9 @@ router.post("/answers/:formId", jwtAuth, AnswerController.store);
 router.get("/forms/:id/invites", jwtAuth, InviteController.index);
 router.post("/forms/:id/invites", jwtAuth, InviteController.store);
 router.delete("/forms/:id/invites", jwtAuth, InviteController.destroy);
+
+// ResponseController
+router.get("/responses/:formId/lists", jwtAuth, ResponseController.lists);
+router.get("/responses/:formId/summaries", jwtAuth, ResponseController.summaries);
 
 module.exports = router;

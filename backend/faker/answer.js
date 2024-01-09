@@ -15,8 +15,9 @@ const run = async (limit) => {
                 updatedAt: new Date(),
             });
         }
+
         const fakeData = await Answer.insertMany(data);
-        console.log(fakeData);
+        console.log(`Data sebanyak : ${fakeData.length} telah ditambahkan ke tabel answers`);
         process.exit();
     } catch (error) {
         console.log(error);

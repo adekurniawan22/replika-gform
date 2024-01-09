@@ -1,3 +1,5 @@
+const isEmailValid = require("./isEmailValid");
+
 const emailNotValid = async (form, answers) => {
     const found = form.questions.filter((question) => {
         if (question.type == "Email") {
@@ -10,8 +12,7 @@ const emailNotValid = async (form, answers) => {
             }
 
             if (answer) {
-                const regex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
-                if (!regex.test(answer.value)) {
+                if (!isEmailValid(answer.value)) {
                     return true;
                 }
             }

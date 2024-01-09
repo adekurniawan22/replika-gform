@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Form = require("../models/Form");
 const User = require("../models/User");
+const isEmailValid = require("../libraries/isEmailValid");
 
 class InviteController {
     async index(req, res) {
@@ -51,8 +52,7 @@ class InviteController {
                 throw { code: 400, message: "EMAIL_ALREADY_INVITED" };
             }
 
-            const regex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
-            if (!regex.test(req.body.email)) {
+            if (!isEmailValid(req.body.email)) {
                 throw { code: 400, message: "INVALID_EMAIL" };
             }
 

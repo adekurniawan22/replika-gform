@@ -10,7 +10,7 @@ const emailNotValid = require("../libraries/emailNotValid");
 class AnswerController {
     async store(req, res) {
         try {
-            if (req.params.formId) {
+            if (!req.params.formId) {
                 throw { code: 428, message: "REQUIRED_FORM_ID" };
             }
             if (!mongoose.Types.ObjectId.isValid(req.params.formId)) {
