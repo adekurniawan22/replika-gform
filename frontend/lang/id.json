@@ -1,0 +1,5 @@
+{
+    "SERVER_ERROR": "Server sedang mengalami gangguan, silahkan coba beberapa saat lagi",
+    "INVALID_PASSWORD": "Password Tidak Cocok",
+    "USER_NOT_FOUND": "Akun tidak ditemukan"
+}

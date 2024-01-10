@@ -116,12 +116,17 @@ export default {
                 if (this.$refs.form.validate()) {
                     this.isLoading = true;
                     const response = await this.$axios.$post("http://localhost:3000/api/register", this.form);
-                    console.log(response);
                     setTimeout(() => {
                         this.isLoading = false;
                         alert("REGISTER SUCCESS");
-                        // window.location.reload();
-                    }, 3000);
+                        this.form = {
+                            fullname: "",
+                            email: "",
+                            password: "",
+                            password_confirmation: "",
+                        };
+                        this.$refs.form.resetValidation();
+                    }, 2000);
                 }
             } catch (error) {
                 console.error(error);
